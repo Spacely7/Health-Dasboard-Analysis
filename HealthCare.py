@@ -81,6 +81,26 @@ st.subheader("Avg. Hospital Stay per Condition")
 avg_stay = filtered_df.groupby('Medical Condition')['Stay Duration (days)'].mean().sort_values(ascending=False)
 st.bar_chart(avg_stay)
 
+# 💸 Top 10 Most Expensive Medical Conditions
+st.subheader("💸 Top 10 Most Expensive Medical Conditions")
+
+avg_billing_by_condition = (
+    filtered_df.groupby('Medical Condition')['Billing Amount']
+    .mean()
+    .sort_values(ascending=False)
+    .head(10)
+)
+
+fig_expensive_conditions = px.bar(
+    x=avg_billing_by_condition.index,
+    y=avg_billing_by_condition.values,
+    labels={"x": "Medical Condition", "y": "Average Billing ($)"},
+    title="Top 10 Most Expensive Conditions (Avg Billing)",
+    text_auto='.2s'
+)
+st.plotly_chart(fig_expensive_conditions, use_container_width=True)
+
+
 # 📅 Time Series: Admissions per Month
 st.header("📆 Admission Trends Over Time")
 admission_trend = filtered_df.groupby(filtered_df['Date of Admission'].dt.to_period('M')).size()
@@ -88,6 +108,23 @@ admission_trend.index = admission_trend.index.astype(str)
 fig_admit = px.line(x=admission_trend.index, y=admission_trend.values,
                     labels={'x': 'Month', 'y': 'Admissions'}, title="Monthly Admissions Over Time")
 st.plotly_chart(fig_admit, use_container_width=True)
+
+# 🏁 Discharges Over Time
+st.subheader("🏁 Discharges Over Time")
+
+discharge_trend = (
+    filtered_df.groupby(filtered_df['Discharge Date'].dt.to_period('M')).size()
+)
+discharge_trend.index = discharge_trend.index.astype(str)
+
+fig_discharge = px.line(
+    x=discharge_trend.index,
+    y=discharge_trend.values,
+    labels={"x": "Month", "y": "Number of Discharges"},
+    title="Discharges Per Month"
+)
+st.plotly_chart(fig_discharge, use_container_width=True)
+
 
 # 💵 Billing Trends Over Time
 st.subheader("Average Billing Over Time")
